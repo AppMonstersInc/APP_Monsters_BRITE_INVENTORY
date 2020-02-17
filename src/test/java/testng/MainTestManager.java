@@ -1,6 +1,7 @@
 package testng;
 
-import org.openqa.selenium.Alert;
+import com.github.javafaker.Faker;
+import com.google.common.base.Verify;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
@@ -10,7 +11,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import pages.HomePage;
 import pages.InventoryAdjustmentsPage;
-import pages.InventoryFunctionality_Reporting;
+import pages.ProductsPageManager;
 import pages.ReorderingRulesPage;
 import utilities.BriteUtils;
 import utilities.Driver;
@@ -23,17 +24,17 @@ public class MainTestManager {
     HomePage homePage = new HomePage();
     ReorderingRulesPage reorderingRulesPage = new ReorderingRulesPage();
     InventoryAdjustmentsPage inventoryAdjustmentsPage = new InventoryAdjustmentsPage();
-    InventoryFunctionality_Reporting inventoryFunctionality_reporting = new InventoryFunctionality_Reporting();
+    ProductsPageManager productsPageManager = new ProductsPageManager();
 
     @BeforeClass
     public void login() {
         BriteUtils.login_as_manager();
     }
 
-    @AfterClass
-    public void close() {
-        Driver.closeDriver();
-    }
+//    @AfterClass
+//    public void close(){
+//        Driver.closeDriver();
+//    }
 
     /* This test logs in as employee and verify if
      Inventory Module is  displayed and navigates inside
@@ -74,7 +75,6 @@ public class MainTestManager {
      */
     @Test(priority = 3)
     public void verifyReorderingSelectElements() {
-        reorderingRulesPage.reorderingRulesButton.click();
         List<WebElement> excualList = reorderingRulesPage.listRecordSelector;
         List<String> expetedList = new ArrayList<>();
         expetedList.add("Name");
@@ -87,7 +87,7 @@ public class MainTestManager {
                 count++;
             }
         }
-        SeleniumUtils.pause(2);
+
         Assert.assertEquals(count, 4, "Not all columns in the list");
 
     }
@@ -96,8 +96,6 @@ public class MainTestManager {
      */
     @Test(priority = 4)
     public void verifyCheckboxesDoesNotSelected() {
-        SeleniumUtils.pause(2);
-        reorderingRulesPage.reorderingRulesButton.click();
         List<WebElement> checkBoxes = reorderingRulesPage.listOfCheckBoxes;
         int count = 0;
         for (int i = 0; i < checkBoxes.size(); i++) {
@@ -109,7 +107,6 @@ public class MainTestManager {
         Assert.assertEquals(count, 0, "Failed, all checkboxes should be enabled by default");
 
     }
-
     /*
     manager should see inventory adjustments from Dash Op in the left side
     manager should be able to click Inventory Adjustments button
@@ -126,9 +123,8 @@ public class MainTestManager {
         // inventory adjustments click
         inventoryAdjustmentsPage.inventoryAdjustmentsButton.click();
     }
-
     @Test(priority = 6)
-    public void createButton() {
+            public void createButton() {
         // inside inventory adjsutments module create button is displayed
         Assert.assertTrue(inventoryAdjustmentsPage.createButtonVerify.isDisplayed(),
                 "Create button is NOT displayed!!!");
@@ -137,24 +133,21 @@ public class MainTestManager {
         // accept alert button
         inventoryAdjustmentsPage.alertAcceptButton.click();
     }
-
     @Test(priority = 7)
-    public void importButton() {
+            public void importButton() {
         // click to import button
         inventoryAdjustmentsPage.importButtonVerify.click();
         // to go back to inventory adjustments page
         inventoryAdjustmentsPage.cancelButtonPress.click();
     }
-
     @Test(priority = 8)
-    public void searchBox() {
+            public void searchBox(){
         // search button verify
         Assert.assertTrue(inventoryAdjustmentsPage.searchBoxVerify.isDisplayed(),
                 "search button is NOT displayed!!!");
         inventoryAdjustmentsPage.searchBoxVerify.click();
 
     }
-
     /*
     as a manager i can navigate to search button in the inventory adjustments page
     as a manager when i click search button it should allow us to search products
@@ -162,7 +155,7 @@ public class MainTestManager {
     as a manager i can click the any offered products to choose
      */
     @Test(priority = 9) // Jurabek
-    public void searchButtonVerifyManager() {
+    public void searchButtonVerifyManager(){
         // go to Inventory page to start from the beginning
         //  homePage.inventoryModuleTab.click();
 //        inventoryAdjustmentsPage.inventoryAdjustmentsButton.click();
@@ -181,104 +174,74 @@ public class MainTestManager {
 
     }
 
+    // As a manager I should be able to create product inside products page
+    @Test (priority = 10)//Sultan
+    public void productsButtonVerification(){
+        // Verify Productions button is displayed
+        Assert.assertTrue(productsPageManager.productsButton.isDisplayed(),"Products button is NOT displayed");
+    }
 
-    @Test(priority = 10)
-    public void validateTheProductRulesHeader() {
+
+    @Test (priority = 11)//Sultan
+    public void productsPageVerification(){
+        //    Verify Productions button is displayed
+        //    Manager should be able to see Products button at the Inventory page
+        //    Click to the Products button
+        //    Manager sholud be navigated to Products page
+        productsPageManager.productsButton.click();
+        String actualResult = productsPageManager.headerOfProducts.getText();
+        String expectedResult = "Products";
         SeleniumUtils.pause(2);
-        reorderingRulesPage.reorderingRulesButton.click();
+
+        Assert.assertTrue(actualResult.contains(expectedResult),"User is NOT navigated to PRODUCTS PAGE");
+    }
+
+    @Test (priority = 12)//Sultan
+    public void createButtonVerification(){
+        //    Verify create button is  displayed
+        //    Manager should be navigated to create product page
+        productsPageManager.productsButton.click();
+        Assert.assertTrue(productsPageManager.createButton.isDisplayed(),"Create Button is not displayed");
+    }
+
+    @Test (priority = 13)//Sultan
+    public void createFormVerification(){
+        //    Manager should be able to to fill out form to create product
+        productsPageManager.productsButton.click();
         SeleniumUtils.pause(2);
-        reorderingRulesPage.nameOfProductColumn.click();
-        String actualResultHeader = reorderingRulesPage.reorderingRulesHeader.getText();
-        String expectedResultHeader = "Rules";
-        Assert.assertTrue(actualResultHeader.contains(expectedResultHeader), "Actual result not equal to expected one");
-
-    }
-
-    @Test(priority = 11)
-    public void validateTheProductName() {
-        reorderingRulesPage.reorderingRulesButton.click();
-        reorderingRulesPage.reorderingRulesName.click();
-        String actualResultHeader = reorderingRulesPage.reorderingRulesName.getText();
-        String expectedResultHeader = "Name";
-        Assert.assertTrue(actualResultHeader.contains(expectedResultHeader), "Actual result not equal to expected one");
-
-    }
-
-    @Test(priority = 12)
-    public void verifyReorderingRulesTableIsDisplayed() {
-        reorderingRulesPage.reorderingRulesButton.click();
-        String actualTable = reorderingRulesPage.reorderingRulesTable.getText();
-        Assert.assertFalse(actualTable.isEmpty());
-    }
-
-    @Test(priority = 13)
-    public void validateCreateReorderingRules() {
-        reorderingRulesPage.reorderingRulesButton.click();
-        //Not able to automate,there is a bag
-    }
-
-    @Test(priority = 14)
-    public void verifySearchFunctionalityOnReorderingRulesPage() {
-        reorderingRulesPage.reorderingRulesButton.click();
-        reorderingRulesPage.searchInput.sendKeys("Computer" + Keys.ENTER);
-        List<WebElement> list = reorderingRulesPage.firstColumns;
-        boolean result = false;
-        for (int i = 0; i < list.size(); i++) {
-            if (list.get(i).getText().contains("Computer")) {
-                result = true;
-            }
-        }
+        productsPageManager.createButton.click();
         SeleniumUtils.pause(2);
-        Assert.assertTrue(result, "Search functionality is NOT Working");
-
+        Assert.assertTrue(productsPageManager.createForm.isDisplayed(),"Create form is NOT displayed");
     }
-    /* // Jurabek
-    as a manager, i can go to Inventory tab
-    as a manager, i can find Inventory from Reporting page
-    as a manager, i can click Inventory button
-    as a manager, I should be navigated to main Inventory
-     */
-
-    @Test(priority = 15)
-    public void verifyInventoryFromReports(){
-        // verify Inventory functionality is displayed
-        Assert.assertTrue(inventoryFunctionality_reporting.inventoryFuncButton.isDisplayed(),
-                "Inventory functinality button is NOT displayed!!!");
-
+    @Test (priority = 14)//Sultan
+    public void validateCreateNewProduct(){
+        //    Click to save	Verify that product is added to the products list
+        Faker faker = new Faker();
+        String str = faker.company().name();
+        productsPageManager.productsButton.click();
+        productsPageManager.createButton.click();
+        productsPageManager.productNameInput.sendKeys(str);
+        productsPageManager.newProductSalesPrice.click();
+        productsPageManager.newProductSalesPrice.clear();
+        productsPageManager.newProductSalesPrice.sendKeys(faker.number().digits(2));
+        productsPageManager.newProductCost.click();
+        productsPageManager.newProductCost.clear();
+        productsPageManager.newProductCost.sendKeys(faker.number().digits(3));
+        productsPageManager.newProductSaveButton.click();
+        productsPageManager.productsButton.click();
+        SeleniumUtils.pause(2);
+        productsPageManager.searchBox.click();
+        productsPageManager.searchBox.sendKeys(str+Keys.ENTER);
+        SeleniumUtils.pause(2);
+        productsPageManager.fakeResult.click();
+        SeleniumUtils.pause(2);
+        Assert.assertTrue(productsPageManager.fakeResultName.getText().contains(str),"Created item is NOT in the list");
     }
-    @Test(priority = 16)
-    public void verifyCancelButton(){
-        // verify cancel button is clicking inside Inventory func
-        inventoryFunctionality_reporting.inventoryFuncButton.click();
-       inventoryFunctionality_reporting.cancelButton.click();
-
-    }
 
 
-    @Test(priority = 17)
-    public void InventoryReportPage(){
-      //  as a manager i can click to inventory button
-        inventoryFunctionality_reporting.inventoryFuncButton.click();
-      // as a manager i can see "Inventory Report" text
-        Assert.assertTrue(inventoryFunctionality_reporting.inventoryPageMainText.isDisplayed(),
-                "Inventory text is NOT displayed!!!");
-        //as a manager i can click to Retrieve button
-        inventoryFunctionality_reporting.retrieveButton.click();
-        //Current Inventory button has to be selected by default
-        inventoryFunctionality_reporting.inventoryFuncButton.click();
-        Assert.assertTrue(inventoryFunctionality_reporting.firstRadioButton.isSelected(),
-                "By default first radio button is NOT selected!!!");
-       // "Current Inventory" text is displayed
-        Assert.assertTrue(inventoryFunctionality_reporting.firstRadioButtonText.isDisplayed(),
-                "First button text is NOT displayed!!!");
-       // Second radio button should not be selected
-        Assert.assertFalse(inventoryFunctionality_reporting.secondRadioButton.isSelected(),
-                "Second radio button IS SELECTED!!!");
-        //  Second radio button text is displayed
-        Assert.assertTrue(inventoryFunctionality_reporting.secondRadioButtonText.isDisplayed(),
-                "Second button text is NOT displayed!!!");
-        inventoryFunctionality_reporting.cancelButton.click();
 
-    }
+
+
+
 
 }

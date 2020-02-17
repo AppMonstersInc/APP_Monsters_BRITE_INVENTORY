@@ -1,7 +1,12 @@
 package testng;
 
 
-import org.openqa.selenium.Alert;
+
+import com.github.javafaker.Faker;
+import org.apache.commons.lang3.builder.ToStringExclude;
+
+import com.google.common.base.Verify;
+
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.Select;
@@ -9,10 +14,14 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
+import pages.*;
+
 import pages.HomePage;
 import pages.InventoryAdjustmentsPage;
+import pages.ProductsPageEmployee;
 import pages.ReorderingRulesPage;
-import pages.ScarpPage;
+
 import utilities.BriteUtils;
 import utilities.Driver;
 import utilities.SeleniumUtils;
@@ -25,12 +34,18 @@ public class MainTestEmployee {
     ReorderingRulesPage reorderingRulesPage = new ReorderingRulesPage();
     InventoryAdjustmentsPage inventoryAdjustmentsPage = new InventoryAdjustmentsPage();
 
+    TransferPage transferPage=new TransferPage();
+    Faker faker=new Faker();
+
+    ProductsPageEmployee productsPageEmployee = new ProductsPageEmployee();
+
+
     @BeforeClass
     public void login() {
         BriteUtils.login_as_employee();
     }
 
-    @AfterClass
+      @AfterClass
     public void close() {
         Driver.closeDriver();
     }
@@ -108,7 +123,53 @@ public class MainTestEmployee {
 
     }
 
-    @Test(priority = 5)    // Jurabek
+    @Test(priority = 5)
+    public void validateTheProductRulesHeader() {
+        SeleniumUtils.pause(2);
+        reorderingRulesPage.reorderingRulesButton.click();
+        SeleniumUtils.pause(2);
+        reorderingRulesPage.nameOfProductColumn.click();
+        String actualResultHeader = reorderingRulesPage.reorderingRulesHeader.getText();
+        String expectedResultHeader = "Rules";
+        Assert.assertTrue(actualResultHeader.contains(expectedResultHeader), "Actual result not equal to expected one");
+
+    }
+
+    @Test(priority = 6)
+    public void validateTheProductName() {
+        reorderingRulesPage.reorderingRulesButton.click();
+        reorderingRulesPage.reorderingRulesName.click();
+        String actualResultHeader = reorderingRulesPage.reorderingRulesName.getText();
+        String expectedResultHeader = "Name";
+        Assert.assertTrue(actualResultHeader.contains(expectedResultHeader), "Actual result not equal to expected one");
+
+    }
+
+    @Test(priority = 7)
+    public void verifyReorderingRulesTableIsDisplayed() {
+        reorderingRulesPage.reorderingRulesButton.click();
+        String actualTable = reorderingRulesPage.reorderingRulesTable.getText();
+        SeleniumUtils.pause(2);
+        Assert.assertFalse(actualTable.isEmpty());
+    }
+
+    @Test(priority = 8)
+    public void verifySearchFunctionalityOnReorderingRulesPage() {
+        reorderingRulesPage.reorderingRulesButton.click();
+        reorderingRulesPage.searchInput.sendKeys("Computer" + Keys.ENTER);
+        List<WebElement> list = reorderingRulesPage.firstColumns;
+        boolean result = true;
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i).getText().contains("Computer")) {
+                result = true;
+            }
+        }
+        SeleniumUtils.pause(2);
+        Assert.assertTrue(result, "Search functionality is NOT Working");
+
+    }
+
+    @Test(priority = 9)    // Jurabek
     public void inventoryAdjustButton() {
         homePage.inventoryModuleTab.click();
         // verify inventory adjustments button
@@ -118,9 +179,8 @@ public class MainTestEmployee {
         // inventory adjustments click
         inventoryAdjustmentsPage.inventoryAdjustmentsButton.click();
     }
-
-    @Test(priority = 6)
-    public void createButton() {
+        @Test (priority =10 )
+                public void createButton(){
         // inside inventory adjsutments module create button is displayed
         Assert.assertTrue(inventoryAdjustmentsPage.createButtonVerify.isDisplayed(),
                 "Create button is NOT displayed!!!");
@@ -130,17 +190,15 @@ public class MainTestEmployee {
         inventoryAdjustmentsPage.alertAcceptButton.click();
         // click to import button
     }
-
-    @Test(priority = 7)
-    public void importButton() {
-        inventoryAdjustmentsPage.importButtonVerify.click();
-        // to go back to inventory adjustments page
-        inventoryAdjustmentsPage.cancelButtonPress.click();
-        // search button verify
-    }
-
-    @Test(priority = 8)
-    public void searchBox() {
+        @Test (priority =11 )
+                public void importButton() {
+            inventoryAdjustmentsPage.importButtonVerify.click();
+            // to go back to inventory adjustments page
+            inventoryAdjustmentsPage.cancelButtonPress.click();
+            // search button verify
+        }
+        @Test(priority = 12)
+                public void searchBox(){
         Assert.assertTrue(inventoryAdjustmentsPage.searchBoxVerify.isDisplayed(),
                 "search button is NOT displayed!!!");
         inventoryAdjustmentsPage.searchBoxVerify.click();
@@ -153,7 +211,7 @@ public class MainTestEmployee {
     as a user when i should type search button
     as a user i can click the offered products to choose
      */
-    @Test(priority = 9)   // Jurabek
+    @Test(priority = 13)   // Jurabek
     public void searchBoxVerifyUser() {
         inventoryAdjustmentsPage.inventoryAdjustmentsButton.click();
         // go to search button
@@ -173,7 +231,7 @@ public class MainTestEmployee {
 
     // Create Scrap Products
 
-    @Test(priority = 10)
+    @Test(priority = 14)
     public void Create_Scrap_Products(){
         ScarpPage scarpPage = new ScarpPage();
 SeleniumUtils.pause(2);
@@ -218,54 +276,88 @@ SeleniumUtils.pause(2);
 
     }
 
+    @Test (priority = 15)
+    public void verifyTransferButton(){
 
-
-
-    @Test(priority = 11)
-    public void validateTheProductRulesHeader() {
+        transferPage.transferButton.click();
         SeleniumUtils.pause(2);
-        reorderingRulesPage.reorderingRulesButton.click();
-        SeleniumUtils.pause(2);
-        reorderingRulesPage.nameOfProductColumn.click();
-        String actualResultHeader = reorderingRulesPage.reorderingRulesHeader.getText();
-        String expectedResultHeader = "Rules";
-        Assert.assertTrue(actualResultHeader.contains(expectedResultHeader), "Actual result not equal to expected one");
+
+        Assert.assertFalse(transferPage.allTransferList.isEmpty(),"All information did'nt displayed");
+
+    }
+    @Test (priority = 16)
+    public void VerifysearchBoxinTransfers(){
+
+        Assert.assertTrue(transferPage.searchBox.isDisplayed(),"Search box did'nt displayed");
 
     }
 
-    @Test(priority = 12)
-    public void validateTheProductName() {
-        reorderingRulesPage.reorderingRulesButton.click();
-        reorderingRulesPage.reorderingRulesName.click();
-        String actualResultHeader = reorderingRulesPage.reorderingRulesName.getText();
-        String expectedResultHeader = "Name";
-        Assert.assertTrue(actualResultHeader.contains(expectedResultHeader), "Actual result not equal to expected one");
+
+    @Test(priority = 17)
+    public void ValidationOfDeleteButton() {
+        transferPage.firstButton.click();
+
+
+      transferPage.actionButton.click();
+
+        Assert.assertTrue(transferPage.deleteButton.isDisplayed(), "delete button didnt displayed ");
+
+    }
+    @Test (priority = 18)
+    public void ValidationCreateButtoninTransfers(){
+
+        transferPage.createButton.click();
+
+        Assert.assertTrue(transferPage.newStockForm.isDisplayed(),"New Form did'nt displayed");
 
     }
 
-    @Test(priority = 13)
-    public void verifyReorderingRulesTableIsDisplayed() {
-        reorderingRulesPage.reorderingRulesButton.click();
-        String actualTable = reorderingRulesPage.reorderingRulesTable.getText();
+
+
+    // As an employee I should be able to see Products button inside the Inventory module
+    @Test(priority = 19) //Sultan
+    // Verify Products button is displayed
+    public void productsButtonVerification(){
+        Assert.assertTrue(productsPageEmployee.productsButton.isDisplayed(),"Products button is NOT DISPLAYED");
+    }
+
+    @Test(priority = 20) // Sultan
+    // Verify Products page is opened
+    // Verify list of products items displayed
+    public void verificationOfInsideProductsPage(){
+        productsPageEmployee.productsButton.click();
+        Assert.assertTrue(productsPageEmployee.itemsList.isDisplayed(),"List of items is NOT Displayed");
+    }
+
+    @Test(priority = 21) //Sultan
+    public void searchBoxVerification(){
+        // Verify search box is displayed
+        productsPageEmployee.productsButton.click();
+        Assert.assertTrue(productsPageEmployee.searchBoxInput.isDisplayed(),"Search box input is not displayed");
+    }
+
+    @Test(priority = 22)//Sultan
+    public void searchBoxInputValidation(){
+        // Verify items listed by name as searched
+        productsPageEmployee.productsButton.click();
+        productsPageEmployee.searchBoxInput.sendKeys("book");
+        Assert.assertTrue(productsPageEmployee.searchedItemList.isDisplayed(),"Searched item list is not displayed");
+    }
+
+    @Test(priority = 23) //Sultan
+    public void searchedItemVerification(){
+        // Click to the selected item
+        // Employee should be navigated to selected items page
+        productsPageEmployee.productsButton.click();
         SeleniumUtils.pause(2);
-        Assert.assertFalse(actualTable.isEmpty());
+        productsPageEmployee.searchBoxInput.sendKeys("book");
+        productsPageEmployee.searchedItemButton.click();
+        Assert.assertTrue(productsPageEmployee.searchedItemForm.isDisplayed(),"Searched item description is NOT displayed");
     }
 
-    @Test(priority = 14)
-    public void verifySearchFunctionalityOnReorderingRulesPage() {
-        reorderingRulesPage.reorderingRulesButton.click();
-        reorderingRulesPage.searchInput.sendKeys("Computer" + Keys.ENTER);
-        List<WebElement> list = reorderingRulesPage.firstColumns;
-        boolean result = true;
-        for (int i = 0; i < list.size(); i++) {
-            if (list.get(i).getText().contains("Computer")) {
-                result = true;
-            }
-        }
-        SeleniumUtils.pause(2);
-        Assert.assertTrue(result, "Search functionality is NOT Working");
 
-    }
+
+
 
 
 
