@@ -23,16 +23,17 @@ public class MainTestManager {
     ReorderingRulesPage reorderingRulesPage = new ReorderingRulesPage();
     InventoryAdjustmentsPage inventoryAdjustmentsPage = new InventoryAdjustmentsPage();
     ProductsPageManager productsPageManager = new ProductsPageManager();
-    InventoryFunctionality_Reporting inventoryFunctionality_reporting =
-            new InventoryFunctionality_Reporting();
+    InventoryFunctionality_Reporting inventoryFunctionality_reporting = new InventoryFunctionality_Reporting();
+    ProductMoves productMoves = new ProductMoves();
+
 
     @BeforeClass
-    public void login()  {
+    public void login() {
         BriteUtils.login_as_manager();
     }
 
     @AfterClass
-    public void close(){
+    public void close() {
         Driver.closeDriver();
     }
 
@@ -178,6 +179,7 @@ public class MainTestManager {
                 "First item is NOT displayed!!!");
 
     }
+
     @Test(priority = 10)
     public void validateTheProductRulesHeader() {
         SeleniumUtils.pause(2);
@@ -216,11 +218,12 @@ public class MainTestManager {
     @Test(priority = 14)
     public void verifySearchFunctionalityOnReorderingRulesPage() {
         reorderingRulesPage.reorderingRulesButton.click();
-        reorderingRulesPage.searchInput.sendKeys("Computer" + Keys.ENTER);
+        reorderingRulesPage.searchInput.sendKeys("computer" + Keys.ENTER);
+        SeleniumUtils.pause(1);
         List<WebElement> list = reorderingRulesPage.firstColumns;
-        boolean result = false;
+        boolean result = true;
         for (int i = 0; i < list.size(); i++) {
-            if (list.get(i).getText().contains("Computer")) {
+            if (list.get(i).getText().toLowerCase().contains("computer")) {
                 result = true;
             }
         }
@@ -236,14 +239,15 @@ public class MainTestManager {
      */
 
     @Test(priority = 15)
-    public void verifyInventoryFromReports(){
+    public void verifyInventoryFromReports() {
         // verify Inventory functionality is displayed
         Assert.assertTrue(inventoryFunctionality_reporting.inventoryFuncButton.isDisplayed(),
                 "Inventory functinality button is NOT displayed!!!");
 
     }
+
     @Test(priority = 16)
-    public void verifyCancelButton(){
+    public void verifyCancelButton() {
         // verify cancel button is clicking inside Inventory func
         inventoryFunctionality_reporting.inventoryFuncButton.click();
         inventoryFunctionality_reporting.cancelButton.click();
@@ -265,7 +269,7 @@ public class MainTestManager {
     as a manager i should be able to click calendar button
      */
     @Test(priority = 17)
-    public void InventoryReportPage(){
+    public void InventoryReportPage() {
         //  as a manager i can click to inventory button
         inventoryFunctionality_reporting.inventoryFuncButton.click();
         // as a manager i can see "Inventory Report" text
@@ -289,6 +293,7 @@ public class MainTestManager {
         inventoryFunctionality_reporting.cancelButton.click();
 
     }
+
     @Test(priority = 18) // JK
     public void inventoryModulePageCalendarCheck() {
         inventoryFunctionality_reporting.inventoryFuncButton.click();
@@ -303,7 +308,6 @@ public class MainTestManager {
         inventoryFunctionality_reporting.calendarBox.click();
         inventoryFunctionality_reporting.xButton.click();
     }
-
 
 
     // As a manager I should be able to create product inside products page
@@ -321,6 +325,7 @@ public class MainTestManager {
         //    Click to the Products button
         //    Manager sholud be navigated to Products page
         productsPageManager.productsButton.click();
+        SeleniumUtils.pause(1);
         String actualResult = productsPageManager.headerOfProducts.getText();
         String expectedResult = "Products";
         SeleniumUtils.pause(2);
@@ -350,7 +355,7 @@ public class MainTestManager {
     public void validateCreateNewProduct() {
         //    Click to save	Verify that product is added to the products list
         Faker faker = new Faker();
-        String str = faker.company().name();
+        String str = faker.funnyName().name();
         productsPageManager.productsButton.click();
         productsPageManager.createButton.click();
         productsPageManager.productNameInput.sendKeys(str);
@@ -371,11 +376,174 @@ public class MainTestManager {
         Assert.assertTrue(productsPageManager.fakeResultName.getText().contains(str), "Created item is NOT in the list");
     }
 
+    @Test(priority = 24)
+    public void Create_Scrap_Products() {
+        ScarpPage scarpPage = new ScarpPage();
+        SeleniumUtils.pause(2);
+        scarpPage.scrapButton.click();
+        //User its on Scrap home Page!!
+        SeleniumUtils.pause(2);
+        scarpPage.createButton.click();
+        //User should see in form Sheet
+        Assert.assertTrue(scarpPage.formSheet.isDisplayed(), "Form Sheet it's not Displayed!!");
+        SeleniumUtils.pause(2);
+        //----------------------------------\\
+        //Product text button is correct!
+
+        String actualTxt = scarpPage.productButtonTxt.getText();
+        String expectedTxt = "Product";
+
+        Assert.assertTrue(actualTxt.equals(expectedTxt), "WRONG PRODUCT TEXT!!!!");
+        //--------------------------------------------//
+        // Quantity Button!
+
+        scarpPage.quantityButton.clear();
+        scarpPage.quantityButton.sendKeys("2.00");
+        Assert.assertTrue(scarpPage.QuantityButtonText.getText().equals("Quantity"), "Quantity button TEXT is WRONG!!");
+        //----------------------------------------------\\
+        // Source Document!
+
+        scarpPage.sourceDocumentInputFiled.sendKeys("Example0006");
+        Assert.assertTrue(scarpPage.sourceDocumentText.getText().equals("Source Document"), "Source Document field TEXT is WRONG!!");
+
+        //--------------------------------------------------\\
+        // Expected Date!
+        scarpPage.expectedDateField.click();
+        SeleniumUtils.pause(3);
+        Assert.assertTrue(scarpPage.expectedDateFieldText.getText().equals("Expected Date"), "Expected Date field TEXT is WRONG!!");
+        //-----------------------------------------------------\\
+        // Save button!
+
+        scarpPage.discardButton.click();
+
+        scarpPage.okButtonWarning.click();
+
+        SeleniumUtils.pause(3);
+    }
+
+
+    @Test(priority = 25)
+    public void Import_Scrap_Products() {
+        ScarpPage scarpPage = new ScarpPage();
+        scarpPage.scrapButton.click();
+        scarpPage.importButton.click();
+        //------------------------------------\\
+        // User should be able to see Test Import Button!
+
+        Assert.assertTrue(scarpPage.testImportButton.isDisplayed(), "Test Import button is Not Displayed!!");
+        //---------------------------------------------\\
+        // User should be able to see The Import Button in 2nd Page!
+
+        Assert.assertTrue(scarpPage.importButton2ndPage.isDisplayed(), "Import button 2nd page is Not Displayed!!");
+        //-----------------------------------------------\\
+        //User should be able to verify, 'Select a CSV or Excel file to import.'
+        Assert.assertTrue(scarpPage.verifyText.isDisplayed(), "Text is Not Displayed!!");
+        //-----------------------------------------------------\\
+        // User should be able to see Reload file!
+        Assert.assertTrue(scarpPage.reloadFileButton.isDisplayed(), "Reload file is Not Displayed!!");
+        //-------------------------------------------------------\\
+        // User should be able to see Load Button!
+        Assert.assertTrue(scarpPage.loadFileButton.isDisplayed(), "Load Button is Not Displayed!!");
+        //------------------------------------------------------------\\
+        // User should be able to see the Input Field!
+        Assert.assertTrue(scarpPage.inputField.isDisplayed(), "Input Field is Not Displayed!!");
+        //-----------------------------------------------------------------\\
+        // User should able to see Help Button!
+        Assert.assertTrue(scarpPage.helpButton.isDisplayed(), "Help Button is Not Displayed!!");
+        //-----------------------------------------------------------------\\
+        // User should be able see Cancel!
+        Assert.assertTrue(scarpPage.CancelButton.isDisplayed(), "Cancel Button is Not Displayed");
+
+        SeleniumUtils.pause(2);
+    }
+
+    @Test(priority = 26)
+    public void ScrapSearchButtonsVerify() {
+        ScarpPage scarpPage = new ScarpPage();
+        scarpPage.scrapButton.click();
+        //---------------------------------------\\
+        scarpPage.mangifyingGlassButton.click();
+        SeleniumUtils.pause(3);
+        scarpPage.filterButton.click();
+
+        //------------------------------------------------------------------\\
+        scarpPage.groupByButton.click();
+
+        Assert.assertTrue(scarpPage.productSelection.isDisplayed(), "Product Select is Not Displayed!!");
+        Assert.assertTrue(scarpPage.locationSelection.isDisplayed(), "Location Select is Not Displayed!!");
+        Assert.assertTrue(scarpPage.scrapLocationSelector.isDisplayed(), "Scrap Select is Not Displayed!!");
+        Assert.assertTrue(scarpPage.addCustomGroupSelector.isDisplayed(), "Add Custom Select is Not Displayed");
+        //--------------------------------------------------------------\\
+        scarpPage.favoritesButton.click();
+
+        Assert.assertTrue(scarpPage.saveCurrentSearch.isDisplayed(), "Save Current Search is Not Displayed!!");
+        Assert.assertTrue(scarpPage.addToMyDashboard.isDisplayed(), "Add to my Dashboard is Not Displayed!!");
+        //------------------------------------------------------------\\
+        scarpPage.searchInputField.sendKeys("apple" + Keys.ENTER);
+
+    }
+
+    @Test(priority = 27)  //Roman
+    public void productMoveButton() {
+        // Manager should be able to click on "Product Moves" functionality
+        productMoves.productMovesButton.click();
+        Assert.assertTrue(productMoves.productMovesButton.isDisplayed(), "Product Moves functionality is NOT displayed");
+        productMoves.allCheckBoxSelector.click();
+        SeleniumUtils.pause(2);
+        productMoves.actionButton.click();
+        SeleniumUtils.pause(2);
+        productMoves.exportButton.click();
+        SeleniumUtils.pause(2);
+        productMoves.importCompatibleRadioButton.isSelected();
+        Assert.assertTrue(productMoves.importCompatibleRadioButton.isEnabled(), "Radio Button is not enabled");
+        SeleniumUtils.pause(2);
+        productMoves.exportFormatsCsvRadioButton.isSelected();
+        SeleniumUtils.pause(2);
+        Assert.assertTrue(productMoves.exportToFileButton.isDisplayed(), "Export to file Button is not displayed");
+        SeleniumUtils.pause(2);
+        productMoves.addFieldButton.isDisplayed();
+        Assert.assertTrue(productMoves.addFieldButton.isDisplayed(), "Add field button is not displayed");
+        SeleniumUtils.pause(2);
+        Assert.assertTrue(productMoves.removeFieldButton.isDisplayed(), "Remove field button is not displayed");
+        SeleniumUtils.pause(2);
+        Assert.assertTrue(productMoves.removeAllFieldButton.isDisplayed(), "Remove all file button is not displayed");
+        SeleniumUtils.pause(2);
+        Assert.assertTrue(productMoves.moveUpButton.isDisplayed(), "Move up button is not displayed");
+        SeleniumUtils.pause(2);
+        Assert.assertTrue(productMoves.moveDownButton.isDisplayed(), "Move down button is not displayed");
+        SeleniumUtils.pause(2);
+        Assert.assertTrue(productMoves.saveFieldsListButton.isDisplayed(), "Save field list button is not displayed");
+        SeleniumUtils.pause(2);
+        Assert.assertTrue(productMoves.exportAllDataRadioButton.isDisplayed(), "Export all data radio button is not displayed");
+        SeleniumUtils.pause(2);
+        Assert.assertTrue(productMoves.excelRadioButton.isDisplayed(), "Excel radio button is not displayed");
+        SeleniumUtils.pause(2);
+        productMoves.closeButton.click();
+        SeleniumUtils.pause(2);
+    }
+
+    @Test(priority = 28) //Roman
+    public void table() {
+        // Manager should be able to see "table"
+        productMoves.productMovesButton.click();
+        Assert.assertTrue(productMoves.table.isDisplayed(), "Table is not displayed");
+        SeleniumUtils.pause(3);
+    }
+
+    @Test(priority = 29)  //Roman
+    public void productMovesText() {
+        // Manager should be able to see "Product Moves text"
+        productMoves.productMovesButton.click();
+        String actualTextHeader = productMoves.productMovesText.getText();
+        String expectedTextHeader = "Product Moves";
+        Assert.assertTrue(actualTextHeader.contains(expectedTextHeader), "Actual value does not equal to expected value ");
+        SeleniumUtils.pause(3);
+
+
+    }
+
 
 }
-
-
-
 
 
 

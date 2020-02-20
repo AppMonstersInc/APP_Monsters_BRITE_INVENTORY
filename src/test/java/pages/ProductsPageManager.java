@@ -7,13 +7,14 @@ import org.openqa.selenium.support.PageFactory;
 import utilities.Driver;
 
 public class ProductsPageManager {
-    public ProductsPageManager(){
-        PageFactory.initElements(Driver.getDriver(),this);
+    public ProductsPageManager() {
+        PageFactory.initElements(Driver.getDriver(), this);
     }
+
     @FindBy(xpath = "(//span[contains(text(), 'Product')])[1]")
     public WebElement productsButton;
 
-    @FindBy(xpath = "(//*[@class='active'])[3]")
+    @FindBy(xpath = "//li[contains(text(),'Products')]")
     public WebElement headerOfProducts;
 
     @FindBy(xpath = "//*[@class='btn btn-primary btn-sm o-kanban-button-new btn-default']")
@@ -25,14 +26,17 @@ public class ProductsPageManager {
     @FindBy(xpath = "//*[@class='o_field_char o_field_widget o_input o_required_modifier']")
     public WebElement productNameInput;
 
-    @FindBy(css = "#o_field_input_488")
+    @FindBy(xpath = "(//*[@class='o_input'])[1]")
     public WebElement newProductSalesPrice;
 
-    @FindBy(css = "#o_field_input_492")
+    @FindBy(xpath = "(//*[@class='o_input'])[2]")
     public WebElement newProductCost;
 
     @FindBy(xpath = "//*[@class='btn btn-primary btn-sm o_form_button_save']")
     public WebElement newProductSaveButton;
+
+    @FindBy(xpath = "(//button[@class='btn btn-sm btn-primary'])[1]")
+    public WebElement okButton;
 
     @FindBy(xpath = "//*[@class='oe_kanban_global_click o_kanban_record']")
     public WebElement fakeResult;
